@@ -1,0 +1,150 @@
+<html xmlns:fb="https://www.facebook.com/2008/fbml">
+  <head>
+    <title>ErgFace</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1"> 
+	<link rel="stylesheet"  href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" />	
+    <link rel="stylesheet"  href="style.css" />
+	<script src="http://code.jquery.com/jquery-1.5.min.js"></script>	
+	<script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script>
+    <script src="validateScore.js"></script>
+    <script src="http://connect.facebook.net/en_US/all.js"></script> 
+</head>
+<body>
+
+<div data-role="page" id="index">
+    
+  <div data-role="header" data-theme="b">
+     <h1>ErgFace</h1>
+  </div>
+    
+  <div data-role="content">
+      <div id="fb-root"></div>
+              <script type="text/javascript">
+                  window.fbAsyncInit = function() {
+                      FB.init({appId: 'replace_me', status: true, cookie: true, xfbml: true, oauth: true});
+
+                      
+                      /* All the events registered */
+                      FB.Event.subscribe('auth.login', function(response) {
+                          // do something with response
+                          login();
+                      });
+                      FB.Event.subscribe('auth.logout', function(response) {
+                          // do something with response
+                          logout();
+                      });
+ 
+                      FB.getLoginStatus(function(response) {
+                          if (response.authResponse) {
+                               var access_token = response.authResponse.accessToken;
+                        //alert(access_token);
+                        $("#accessToken").val(access_token);
+                        var fbId = response.authResponse.userID;
+                        //alert(fbId);
+                        $('#fbId').val(fbId);
+                              // logged in and connected user, someone you know
+                              login();
+                          }
+                      });
+                  };
+                  (function() {
+                      var e = document.createElement('script');
+                      e.type = 'text/javascript';
+                      e.src = document.location.protocol +
+                          '//connect.facebook.net/en_US/all.js';
+                      e.async = true;
+                      document.getElementById('fb-root').appendChild(e);
+                  }());
+ 
+                  function login(){
+                      FB.api('/me', function(response) {
+                      }, {scope : "publish_actions"});
+                  }
+                  function logout(){
+                      //document.getElementById('login').style.display = "none";
+                      $("#score").hide();
+                  }
+
+                  function newErgScore(){
+                      FB.api('/me', function(response) {
+                          if (!response || response.error) {
+                              $('#about').hide();
+                              FB.login();
+                          }
+                          else {
+                           var el = $('#score');
+                           el.show("slow");
+                           $('#about').hide();
+                          }
+                      });
+                  }
+                  
+                  function about() {
+                      $('#about').show("slow");
+                      $('#score').hide();
+                  }
+ 
+              </script>
+ 
+              <h3>Add ergscore to your Facebook timeline | ErgFace</h3>
+              <p><fb:login-button autologoutlink="true"></fb:login-button></p>
+ 
+              <p>
+                  <a href="#" onclick="newErgScore(); return false;">Create Erg Score</a> |
+                  <a href="#" onclick="about(); return false;">About</a> 
+              </p>
+         
+  </div>
+  
+  <div id="score" style='display:none'>
+    
+  <div data-role="content">
+        
+    <form id="newScore" action="/newScore" method="post" enctype="application/x-www-form-urlencoded" data-ajax="false">
+      <input type="hidden" id="accessToken" name="accessToken"/>
+      <input type="hidden" id="fbId" name="fbId"/>  
+      <div data-role="fieldcontain" data-theme="b">
+          <label for="scoreDate">Date (MM/dd/YYYY):</label>
+          <input type="text" name="scoreDate" id="scoreDate" value=""/>
+      </div>
+        
+      <div data-role="fieldcontain">
+	         <label for="split">Split (min:sec):</label>
+	         <input type="text" name="split" id="split" value=""/>
+	  </div>
+      
+      <div data-role="fieldcontain">
+          <label for="distance">Distance (meters):</label>
+          <input type="text" name="distance" id="distance" value=""/>
+      </div>
+        
+      <div data-role="fieldcontain">
+        <label for="time">Time (mm:ss): </label>
+        <input type="text" name="time" id="time" value="" />  
+      </div>
+        
+            
+      <div class="ui-body ui-body-b">
+        <button class="btnLogin" type="submit" id="send" 
+          data-theme="a">Save</button>
+      </div>
+    </form>
+        
+  </div>
+  </div>     
+  <div id="about" style="display:none;">
+      ErgFace is an application to put your indoor rowing scores on the <a href="https://www.facebook.com/about/timeline" target="_blank">Facebook Timeline</a>.
+      It utilizes the <a href="https://developers.facebook.com/docs/opengraph/" target="_blank">Open Graph</a> protocol to publish an erg piece.  As rowers
+      know a piece is the terminology for a workout.  To use the application you login to the <a href="http://facebook.com" target="_blank">Facebook</a> platform
+      and allow <a href="https://www.facebook.com/apps/application.php?id=253922707983005" target="_blank">ErgTime</a> to publish to your timeline.  Then click on 
+      "Create New Score" and enter a date (mm/dd/yyyy), split (e.g. 1:45 or 1:45.5), distance (e.g. 2,000 or 2000), time (e.g. 20:00). Only distance and date are 
+      required.  That's it.  Once you click "Save" you'll be social rowing. <br/><br/>
+      
+      Feel free to contact <a href="http://facebook.com/jeff.s.wagner" target="_blank">me</a> for any feature requests or support questions.
+  </div>    
+    
+ 
+</div>
+</body>
+</html>
